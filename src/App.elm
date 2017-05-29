@@ -5,11 +5,13 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Keyboard.Extra exposing (Key(..))
 import Time
+import Array exposing (Array)
 
 
 type alias Model =
     { x : Int
     , y : Int
+    , color : Int
     , pressedKeys : List Key
     }
 
@@ -18,10 +20,16 @@ init : String -> ( Model, Cmd Msg )
 init path =
     ( { x = 100
       , y = 0
+      , color = 0
       , pressedKeys = []
       }
     , Cmd.none
     )
+
+
+colors : Array String
+colors =
+    Array.fromList [ "pink", "red", "blue", "green", "purple" ]
 
 
 type Msg
@@ -29,6 +37,7 @@ type Msg
     | MoveRight
     | MoveDown
     | MoveUp
+    | NextColor
     | KeyboardMsg Keyboard.Extra.Msg
     | Tick Time.Time
 
@@ -47,6 +56,21 @@ update msg model =
 
         MoveUp ->
             ( { model | y = model.y - 10 }, Cmd.none )
+
+        NextColor ->
+            let
+                colorsCount =
+                    Array.length colors
+
+                nextColor =
+                    if (model.color + 1) == colorsCount then
+                        0
+                    else
+                        model.color + 1
+            in
+                ( { model | color = nextColor }
+                , Cmd.none
+                )
 
         KeyboardMsg keyMsg ->
             ( { model
@@ -107,25 +131,32 @@ controls =
         , button [ onClick MoveRight ] [ text "->" ]
         , button [ onClick MoveDown ] [ text "v" ]
         , button [ onClick MoveUp ] [ text "^" ]
+        , button [ onClick NextColor ] [ text "Next Color" ]
         ]
 
 
 drawSquare : Model -> Html Msg
 drawSquare model =
-    div
-        [ style [ ( "position", "relative" ) ] ]
-        [ div
-            [ style
-                [ ( "position", "absolute" )
-                , ( "left", (toString model.x) ++ "px" )
-                , ( "top", (toString model.y) ++ "px" )
-                , ( "background-color", "pink" )
-                , ( "width", "100px" )
-                , ( "height", "100px" )
+    let
+        color =
+            colors
+                |> Array.get model.color
+                |> Maybe.withDefault "yellow"
+    in
+        div
+            [ style [ ( "position", "relative" ) ] ]
+            [ div
+                [ style
+                    [ ( "position", "absolute" )
+                    , ( "left", (toString model.x) ++ "px" )
+                    , ( "top", (toString model.y) ++ "px" )
+                    , ( "background-color", color )
+                    , ( "width", "100px" )
+                    , ( "height", "100px" )
+                    ]
                 ]
+                []
             ]
-            []
-        ]
 
 
 subscriptions : Model -> Sub Msg
