@@ -274,6 +274,14 @@ drawPlayer model =
             colors
                 |> Array.get model.color
                 |> Maybe.withDefault "yellow"
+
+        playerStyles =
+            case model.gameState of
+                Running ->
+                    []
+
+                Dead ->
+                    [ ( "-webkit-transform", "rotate(180deg)" ) ]
     in
     div
         [ style [ ( "position", "relative" ) ] ]
@@ -287,7 +295,15 @@ drawPlayer model =
                 , ( "height", toString playerSize ++ "px" )
                 ]
             ]
-            []
+            [ p
+                [ style
+                    ([ ( "position", "relative" )
+                     ]
+                        ++ playerStyles
+                    )
+                ]
+                [ text "\x1F980" ]
+            ]
         ]
 
 
@@ -317,7 +333,14 @@ drawEnemy enemy =
                 , ( "height", toString enemySize ++ "px" )
                 ]
             ]
-            []
+            [ p
+                [ style
+                    [ ( "position", "relative" )
+                    , ( "margin-top", "0px" )
+                    ]
+                ]
+                [ text "\x1F985" ]
+            ]
         ]
 
 
